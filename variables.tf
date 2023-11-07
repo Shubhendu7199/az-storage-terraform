@@ -17,9 +17,10 @@ variable "storage_accounts" {
       virtual_network_subnet_names = optional(list(string))
     }))
     file_shares = optional(list(object({
-      name        = string
-      quota       = string
-      access_tier = string
+      name             = string
+      quota            = number
+      access_tier      = optional(string)
+      enabled_protocol = optional(string)
     })))
   }))
 }
