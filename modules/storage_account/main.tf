@@ -20,7 +20,7 @@ resource "azurerm_storage_account" "storage_accounts" {
     for_each = each.value.network_rules != null ? [each.value.network_rules] : []
 
     content {
-      default_action             = each.value.network_rules.default_action
+      default_action             = try(each.value.network_rules.default_action, "Deny")
       bypass                     = each.value.network_rules.bypass
       ip_rules                   = each.value.network_rules.ip_rules
       virtual_network_subnet_ids = local.subnet_ids
@@ -36,10 +36,12 @@ resource "azurerm_storage_share" "file_shares" {
   storage_account_name = each.value.storage_account_name
   quota                = each.value.quota
   access_tier          = each.value.access_tier
+  enabled_protocol     = each.value.enabled_protocol
   acl {
     id = "GhostedRecall"
     access_policy {
       permissions = "r"
     }
   }
+  depends_on = [azurerm_storage_account.storage_accounts]
 }

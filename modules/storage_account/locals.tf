@@ -3,15 +3,15 @@ locals {
 
   subnet_ids = [
     for subnet_name in flatten([
-      for rule in values(local.sa_configs) :
+      for rule in values(var.storage_accounts) :
       rule.network_rules != null ? coalesce(rule.network_rules.virtual_network_subnet_names, []) : []
     ]) :
     format(
       "/subscriptions/%s/resourceGroups/%s/providers/Microsoft.Network/virtualNetworks/%s/subnets/%s",
-      data.azurerm_subscription.current.subscription_id,
-      split("/", subnet_name)[0],
-      split("/", subnet_name)[1],
-      split("/", subnet_name)[2],
+      length(split("/", subnet_name)) > 3 ? split("/", subnet_name)[0] : data.azurerm_subscription.current.subscription_id,
+      split("/", subnet_name)[length(split("/", subnet_name)) - 3],
+      split("/", subnet_name)[length(split("/", subnet_name)) - 2],
+      split("/", subnet_name)[length(split("/", subnet_name)) - 1],
     )
   ]
 
@@ -22,9 +22,9 @@ locals {
         share_name           = share.name
         quota                = share.quota
         access_tier          = share.access_tier
+        enabled_protocol     = share.enabled_protocol
       }
     ]
   ])
-
 
 }
